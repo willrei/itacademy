@@ -24,5 +24,5 @@ void main(List<String> args) {
   print('Vowel count: $vowelCount\n'
       'Consonant count: ${word.length - vowelCount}\n'
       'Letter count:');
-  letterCount.forEach((key, value) => {print('  $key: $value')});
+  letterCount.forEach((key, value) => print('  $key: $value'));
 }
