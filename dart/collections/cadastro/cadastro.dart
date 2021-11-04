@@ -12,11 +12,19 @@ void main() {
   listaCadastro(dados);
 
   sep('População');
-  if (dados.every((dado) => dado['sexo'] == 'M')) print('Apenas homens.');
-  if (dados.every((dado) => dado['sexo'] == 'F')) print('Apenas mulheres.');
-  if (dados.any((dado) => dado['sexo'] == 'M')) print('Há homens.');
-  if (dados.any((dado) => dado['sexo'] == 'F')) print('Há mulheres.');
-  print('');
+  var pop = '';
+  pop += dados.any((dado) => dado['sexo'] == 'M') ? '1' : '0';
+  pop += dados.any((dado) => dado['sexo'] == 'F') ? '1' : '0';
+  switch (pop) {
+    case '10':
+      print('Há apenas homens cadastrados\n');
+      break;
+    case '01':
+      print('Há apenas mulheres cadastradas\n');
+      break;
+    case '11':
+      print('Há homens e mulheres cadastrados\n');
+  }
 
   sep('Salários');
   var dado = dados.reduce(
@@ -27,14 +35,22 @@ void main() {
   sep('Salários médios');
   double mediaM = 0;
   double mediaF = 0;
-  if (dados.any((dado) => dado['sexo'] == 'M'))
-    mediaM = dados.reduce((atual, prox) => atual['salario'] + prox['salario']) /
-        dados.length;
-  if (dados.any((dado) => dado['sexo'] == 'F'))
-    mediaF = dados.reduce((atual, prox) => atual['salario'] + prox['salario']) /
-        dados.length;
-  print('Salário médio dos homens: R\$ $mediaM');
-  print('Salário médio das mulheres: R\$ $mediaF\n');
+  var homens = dados.where((dado) => dado['sexo'] == 'M');
+  var mulheres = dados.where((dado) => dado['sexo'] == 'F');
+
+  if (homens.isNotEmpty) {
+    double soma = 0;
+    homens.forEach((homem) => soma += homem['salario']);
+    mediaM = soma / homens.length;
+    print('Salário médio dos homens: R\$ $mediaM');
+  }
+  if (mulheres.isNotEmpty) {
+    double soma = 0;
+    mulheres.forEach((mulher) => soma += mulher['salario']);
+    mediaF = soma / mulheres.length;
+    print('Salário médio das mulheres: R\$ $mediaF');
+  }
+  print('');
 
   sep('Cadastro após remoção dos outliers');
   dados.removeWhere((dado) => dado['sexo'] == 'M' && dado['salario'] > mediaM);
