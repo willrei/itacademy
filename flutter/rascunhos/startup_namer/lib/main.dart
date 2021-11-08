@@ -10,9 +10,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Startup Name Generator',
-      home: RandomWords(),
+      theme: ThemeData(
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          centerTitle: true,
+          elevation: 3,
+          titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+      ),
+      home: const RandomWords(),
     );
   }
 }
@@ -28,6 +37,7 @@ class RandomWords extends StatefulWidget {
 
 class RandomWordsState extends State<RandomWords> {
   final suggestions = <WordPair>[];
+  final saved = <WordPair>{};
   final biggerFont = const TextStyle(fontSize: 18);
 
   @override
@@ -35,6 +45,13 @@ class RandomWordsState extends State<RandomWords> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Startup Name Generator'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.list),
+            onPressed: pushSaved,
+            tooltip: 'Saved suggestions',
+          )
+        ],
       ),
       body: buildSuggestions(),
     );
@@ -57,10 +74,60 @@ class RandomWordsState extends State<RandomWords> {
   }
 
   Widget buildRow(WordPair pair) {
+    final alreadySaved = saved.contains(pair);
     return ListTile(
       title: Text(
         pair.asPascalCase,
         style: biggerFont,
+      ),
+      trailing: Icon(
+        alreadySaved ? Icons.favorite : Icons.favorite_border,
+        color: alreadySaved ? Colors.red : null,
+        semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
+      ),
+      onTap: () {
+        setState(() {
+          if (alreadySaved) {
+            saved.remove(pair);
+          } else {
+            saved.add(pair);
+          }
+        });
+      },
+    );
+  }
+
+  void pushSaved() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) {
+          final tiles = saved.map(
+            (pair) {
+              return ListTile(
+                title: Text(
+                  pair.asPascalCase,
+                  style: biggerFont,
+                ),
+              );
+            },
+          );
+          final List<Widget> divided;
+          if (tiles.isNotEmpty) {
+            divided = ListTile.divideTiles(
+              context: context,
+              tiles: tiles,
+            ).toList();
+          } else {
+            divided = <Widget>[];
+          }
+
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Saved Suggestions'),
+            ),
+            body: ListView(children: divided),
+          );
+        },
       ),
     );
   }
